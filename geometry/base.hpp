@@ -231,11 +231,6 @@ public:
 
     Point<T, Dimension> coef;
     T offset;
-
-    T Apply(const Point<T, Dimension>& input) const noexcept
-    {
-        return dot(coef, input) + offset;
-    }
 };
 
 template <class T, std::size_t Dimension>
