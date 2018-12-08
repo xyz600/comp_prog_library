@@ -293,15 +293,15 @@ public:
     {
         const Point<T, Dimension> pb = p - orig_;
 
-        const double a = dot(pb, dir1_);
-        const double b = dot(dir1_, dir1_);
-        const double c = dot(dir1_, dir2_);
-        const double d = dot(pb, dir2_);
-        const double e = dot(dir2_, dir2_);
+        const auto a = dot(pb, dir1_);
+        const auto b = dot(dir1_, dir1_);
+        const auto c = dot(dir1_, dir2_);
+        const auto d = dot(pb, dir2_);
+        const auto e = dot(dir2_, dir2_);
 
-        const double denom = b * e - c * c;
-        const double c1 = (a * e - c * d) / denom;
-        const double c2 = -(a * c - b * d) / denom;
+        const auto denom = b * e - c * c;
+        const auto c1 = (a * e - c * d) / denom;
+        const auto c2 = -(a * c - b * d) / denom;
 
         return 0.0 <= c1 && 0.0 <= c2 && c1 + c2 <= 1.0;
     }
