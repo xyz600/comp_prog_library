@@ -243,7 +243,7 @@ std::ostream& operator<<(std::ostream& out, const Line<T, Dimension>& line)
 using Line3D = Line<double, 3>;
 using Line2D = Line<double, 2>;
 
-Point2D Intersect(const Line2D& l1, const Line2D& l2)
+Point2D Intersect(const Line2D& l1, const Line2D& l2) noexcept
 {
     const double denom = l1.coef[0] * l2.coef[1] - l1.coef[1] * l2.coef[0];
     assert(denom != 0.0);
@@ -252,3 +252,40 @@ Point2D Intersect(const Line2D& l1, const Line2D& l2)
     const double num1 = l1.offset * l2.coef[0] - l1.coef[0] * l2.offset;
     return Point2D({ num0 / denom, num1 / denom });
 }
+
+template <class T, std::size_t Dimension>
+class Triangle
+{
+public:
+    Triangle(const Point<T, Dimension>& p1, const Point<T, Dimension>& p2, const Point<T, Dimension>& p3) noexcept
+        : orig_(p1)
+        , dir1_(p2 - p1)
+        , dir2_(p3 - p1)
+    {
+    }
+
+    bool Contain(const Point<T, Dimension>& p) const noexcept
+    {
+        const Point<T, Dimension> pb = p - orig_;
+
+        const double a = dot(pb, dir1_);
+        const double b = dot(dir1_, dir1_);
+        const double c = dot(dir1_, dir2_);
+        const double d = dot(pb, dir2_);
+        const double e = dot(dir2_, dir2_);
+
+        const double denom = b * e - c * c;
+        const double c1 = (a * e - c * d) / denom;
+        const double c2 = -(a * c - b * d) / denom;
+
+        return 0.0 <= c1 && 0.0 <= c2 && c1 + c2 <= 1.0;
+    }
+
+private:
+    Point<T, Dimension> orig_;
+    Point<T, Dimension> dir1_;
+    Point<T, Dimension> dir2_;
+};
+
+using Triangle3D = Triangle<double, 3>;
+using Triangle2D = Triangle<double, 2>;

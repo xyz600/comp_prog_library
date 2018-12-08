@@ -154,3 +154,13 @@ TEST(line_intersect, geometry_base_test)
     ASSERT_EQ(inter[0], 5.0);
     ASSERT_EQ(inter[1], 5.0);
 }
+
+// test Triangle
+
+TEST(triangle_contain, geometry_base_test)
+{
+    const Triangle2D tri(Point2D({ 0.0, 1.0 }), Point2D({ 0.0, 0.0 }), Point2D({ 1.0, 0.0 }));
+
+    ASSERT_TRUE(tri.Contain(Point2D({ 0.49, 0.49 })));
+    ASSERT_FALSE(tri.Contain(Point2D({ 0.51, 0.51 })));
+}
