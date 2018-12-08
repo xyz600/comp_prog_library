@@ -164,3 +164,24 @@ TEST(triangle_contain, geometry_base_test)
     ASSERT_TRUE(tri.Contain(Point2D({ 0.49, 0.49 })));
     ASSERT_FALSE(tri.Contain(Point2D({ 0.51, 0.51 })));
 }
+
+TEST(triangle_circumscribed_circle, geometry_base_test)
+{
+    // 1, 1, sqrt(2)
+    const Triangle2D tri(Point2D({ 0.0, 2.0 }), Point2D({ 0.0, 0.0 }), Point2D({ 2.0, 0.0 }));
+
+    const auto circle = tri.GetCircumscribedCircle();
+
+    ASSERT_NEAR(circle.Radius(), sqrt(2.0), eps);
+    ASSERT_NEAR(circle.Center()[0], 1.0, eps);
+    ASSERT_NEAR(circle.Center()[1], 1.0, eps);
+
+    // 3, 4, 5
+    const Triangle2D tri2(Point2D({ 0.0, 3.0 }), Point2D({ 0.0, 0.0 }), Point2D({ 4.0, 0.0 }));
+
+    const auto circle2 = tri2.GetCircumscribedCircle();
+
+    ASSERT_NEAR(circle2.Radius(), 2.5, eps);
+    ASSERT_NEAR(circle2.Center()[0], 2.0, eps);
+    ASSERT_NEAR(circle2.Center()[1], 1.5, eps);
+}

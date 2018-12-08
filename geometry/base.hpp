@@ -254,6 +254,31 @@ Point2D Intersect(const Line2D& l1, const Line2D& l2) noexcept
 }
 
 template <class T, std::size_t Dimension>
+class Circle
+{
+public:
+    Circle(const Point<T, Dimension>& center, const T radius)
+        : center_(center)
+        , radius_(radius)
+    {
+    }
+
+    const Point<T, Dimension>& Center() const noexcept
+    {
+        return center_;
+    }
+
+    const T Radius() const noexcept
+    {
+        return radius_;
+    }
+
+private:
+    Point<T, Dimension> center_;
+    T radius_;
+};
+
+template <class T, std::size_t Dimension>
 class Triangle
 {
 public:
@@ -279,6 +304,22 @@ public:
         const double c2 = -(a * c - b * d) / denom;
 
         return 0.0 <= c1 && 0.0 <= c2 && c1 + c2 <= 1.0;
+    }
+
+    Circle<T, Dimension> GetCircumscribedCircle() const noexcept
+    {
+        const auto a = dot(dir1_, dir1_);
+        const auto b = dot(dir1_, dir2_);
+        const auto c = dot(dir2_, dir2_);
+
+        const auto s = c * (b - a) / (2 * (b * b - a * c));
+        const auto t = a * (b - c) / (2 * (b * b - a * c));
+
+        const auto relo = (dir1_ * s) + (dir2_ * t);
+        const auto o = orig_ + relo;
+        const auto r = sqrt(dot(relo, relo));
+
+        return Circle<T, Dimension>(o, r);
     }
 
 private:
