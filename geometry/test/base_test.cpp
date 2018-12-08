@@ -132,6 +132,20 @@ TEST(point_ostream, geometry_base_test)
     ASSERT_EQ(ss.str(), "(1, 2, 4)");
 }
 
+TEST(point_reduce, geometry_base_test)
+{
+    const std::vector<Point2D> vs = { Point2D({ 0.0, 1.0 }), Point2D({ 2.0, 0.5 }), Point2D({ 3.0, -2.0 }) };
+
+    const Point2D mins = ReduceMin(vs);
+    const Point2D maxs = ReduceMax(vs);
+
+    ASSERT_NEAR(mins[0], 0.0, eps);
+    ASSERT_NEAR(mins[1], -2.0, eps);
+
+    ASSERT_NEAR(maxs[0], 3.0, eps);
+    ASSERT_NEAR(maxs[1], 1.0, eps);
+}
+
 // test Line
 
 TEST(line_constructor, geometry_base_test)

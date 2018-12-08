@@ -9,10 +9,16 @@
 #include <initializer_list>
 #include <iostream>
 
-template <class T, std::size_t Dimension>
+template <class T, std::size_t D>
 struct Point
 {
 public:
+    using value_type = T;
+    static constexpr std::size_t Dimension()
+    {
+        return D;
+    }
+
     Point()
     {
         std::fill(array_.begin(), array_.end(), 0);
@@ -21,12 +27,12 @@ public:
     Point(std::initializer_list<T>&& list)
     {
         std::size_t index = 0;
-        for (auto it = list.begin(); index < Dimension && it != list.end(); it++)
+        for (auto it = list.begin(); index < Dimension() && it != list.end(); it++)
         {
             array_[index] = *it;
             index++;
         }
-        for (std::size_t i = index; i < Dimension; i++)
+        for (std::size_t i = index; i < Dimension(); i++)
         {
             array_[i] = 0;
         }
@@ -34,7 +40,7 @@ public:
 
     Point(const Point& src)
     {
-        for (std::size_t i = 0; i < std::min(src.size(), Dimension); i++)
+        for (std::size_t i = 0; i < std::min(src.size(), Dimension()); i++)
         {
             array_[i] = src[i];
         }
@@ -42,7 +48,7 @@ public:
 
     constexpr std::size_t size() const noexcept
     {
-        return Dimension;
+        return Dimension();
     }
 
     T& operator[](std::size_t index) noexcept { return array_[index]; }
@@ -57,44 +63,58 @@ public:
     T& z() noexcept { return array_[2]; };
     const T& z() const noexcept { return array_[2]; };
 
-    Point<T, Dimension> operator+(const Point<T, Dimension>& p) const noexcept
+    Point<T, Dimension()> operator+(const Point<T, Dimension()>& p) const noexcept
     {
         return Apply(p, std::plus<T>());
     }
 
-    Point<T, Dimension> operator+(const T& val) const noexcept
+    Point<T, Dimension()> operator+(const T& val) const noexcept
     {
         return Apply(val, std::plus<T>());
     }
 
-    Point<T, Dimension> operator-(const Point<T, Dimension>& p) const noexcept
+    Point<T, Dimension()> operator-(const Point<T, Dimension()>& p) const noexcept
     {
         return Apply(p, std::minus<T>());
     }
 
-    Point<T, Dimension> operator-(const T& val) const noexcept
+    Point<T, Dimension()> operator-(const T& val) const noexcept
     {
         return Apply(val, std::minus<T>());
     }
 
-    Point<T, Dimension> operator*(const Point<T, Dimension>& p) const noexcept
+    Point<T, Dimension()> operator*(const Point<T, Dimension()>& p) const noexcept
     {
         return Apply(p, std::multiplies<T>());
     }
 
-    Point<T, Dimension> operator*(const T& val) const noexcept
+    Point<T, Dimension()> operator*(const T& val) const noexcept
     {
         return Apply(val, std::multiplies<T>());
     }
 
-    Point<T, Dimension> operator/(const Point<T, Dimension>& p) const noexcept
+    Point<T, Dimension()> operator/(const Point<T, Dimension()>& p) const noexcept
     {
         return Apply(p, std::divides<T>());
     }
 
-    Point<T, Dimension> operator/(const T& val) const noexcept
+    Point<T, Dimension()> operator/(const T& val) const noexcept
     {
         return Apply(val, std::divides<T>());
+    }
+
+    Point<T, Dimension()> Min(const Point<T, Dimension()>& p) const noexcept
+    {
+        return Apply(p, [](const T val1, const T val2) {
+            return std::min(val1, val2);
+        });
+    }
+
+    Point<T, Dimension()> Max(const Point<T, Dimension()>& p) const noexcept
+    {
+        return Apply(p, [](const T val1, const T val2) {
+            return std::max(val1, val2);
+        });
     }
 
     T Norm2() const noexcept
@@ -107,7 +127,7 @@ public:
         return ret;
     }
 
-    Point<T, Dimension>&& Normalize() noexcept
+    Point<T, Dimension()>&& Normalize() noexcept
     {
         const T norm = std::sqrt(Norm2());
         for (auto& v : array_)
@@ -118,9 +138,9 @@ public:
     }
 
     template <class BinaryFunction>
-    Point<T, Dimension> Apply(const Point<T, Dimension>& p, BinaryFunction func) const noexcept
+    Point<T, Dimension()> Apply(const Point<T, Dimension()>& p, BinaryFunction func) const noexcept
     {
-        Point<T, Dimension> ret;
+        Point<T, Dimension()> ret;
         for (std::size_t i = 0; i < size(); i++)
         {
             ret[i] = func((*this)[i], p[i]);
@@ -129,9 +149,9 @@ public:
     }
 
     template <class BinaryFunction>
-    Point<T, Dimension> Apply(const T& val, BinaryFunction func) const noexcept
+    Point<T, Dimension()> Apply(const T& val, BinaryFunction func) const noexcept
     {
-        Point<T, Dimension> ret;
+        Point<T, Dimension()> ret;
         for (std::size_t i = 0; i < size(); i++)
         {
             ret[i] = func((*this)[i], val);
@@ -140,9 +160,9 @@ public:
     }
 
     template <class UnaryFunction>
-    Point<T, Dimension>&& Map(UnaryFunction func) noexcept
+    Point<T, Dimension()>&& Map(UnaryFunction func) noexcept
     {
-        for (std::size_t i = 1; i < Dimension; i++)
+        for (std::size_t i = 1; i < Dimension(); i++)
         {
             array_[i] = func(array_[i]);
         }
@@ -153,7 +173,7 @@ public:
     T Reduce(BinaryFunction func) const noexcept
     {
         T ret(array_[0]);
-        for (std::size_t i = 1; i < Dimension; i++)
+        for (std::size_t i = 1; i < Dimension(); i++)
         {
             ret = func(ret, array_[i]);
         }
@@ -161,7 +181,7 @@ public:
     }
 
 private:
-    std::array<T, Dimension> array_;
+    std::array<T, Dimension()> array_;
 };
 
 template <typename T, std::size_t Dimension>
@@ -183,6 +203,44 @@ Point<T, 3> cross(const Point<T, 3>& p1, const Point<T, 3>& p2) noexcept
         p1.z() * p2.x() - p1.x() * p2.z(),
         p1.x() * p2.y() - p1.y() * p2.x()
     };
+}
+
+template <typename Container, typename BinaryFunction>
+Point<typename Container::value_type::value_type, Container::value_type::Dimension()>
+Reduce(const Container& container, BinaryFunction func)
+{
+    using Iterator = typename Container::const_iterator;
+    using T = typename Container::value_type::value_type;
+    constexpr std::size_t Dimension = Container::value_type::Dimension();
+
+    Point<T, Dimension> ret = *container.begin();
+    for (Iterator it = container.begin() + 1; it != container.end(); it++)
+    {
+        ret = func(ret, *it);
+    }
+    return ret;
+}
+
+template <typename Container>
+Point<typename Container::value_type::value_type, Container::value_type::Dimension()> ReduceMin(const Container& container)
+{
+    using T = typename Container::value_type::value_type;
+    constexpr std::size_t Dimension = Container::value_type::Dimension();
+
+    return Reduce(container, [](const Point<T, Dimension>& p1, const Point<T, Dimension>& p2) {
+        return p1.Min(p2);
+    });
+}
+
+template <typename Container>
+Point<typename Container::value_type::value_type, Container::value_type::Dimension()> ReduceMax(const Container& container)
+{
+    using T = typename Container::value_type::value_type;
+    constexpr std::size_t Dimension = Container::value_type::Dimension();
+
+    return Reduce(container, [](const Point<T, Dimension>& p1, const Point<T, Dimension>& p2) {
+        return p1.Max(p2);
+    });
 }
 
 template <typename T, std::size_t Dimension>
