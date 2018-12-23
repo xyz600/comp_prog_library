@@ -25,7 +25,7 @@ public:
         neighbor_list_.emplace_back();
     }
 
-    void connect(const std::size_t from, const std::size_t to, const EdgeType edge) noexcept
+    void connect(const std::size_t from, const std::size_t to, const EdgeType edge = EdgeType()) noexcept
     {
         if (undirected_)
         {
@@ -195,3 +195,42 @@ private:
 
     bool undirected_;
 };
+
+template <typename GraphType>
+void SaveGraphViz(std::ostream& out, const GraphType& graph)
+{
+    const double scale = 1;
+
+    out << "graph {" << std::endl;
+    out << "  layout=neato;" << std::endl;
+
+    out << "  edge[" << std::endl;
+    out << "    color = \"#859900\"," << std::endl;
+    out << "    labelfloat = false," << std::endl; // ラベルの重なりを許さない（デフォルト）
+    out << "  ];" << std::endl;
+
+    double min_x = 1e100;
+    double min_y = 1e100;
+    for (int i = 0; i < graph.size(); i++)
+    {
+        min_x = std::min(min_x, graph.node(i)[0]);
+        min_y = std::min(min_y, graph.node(i)[1]);
+    }
+
+    for (std::size_t i = 0; i < graph.size(); i++)
+    {
+        out << "  " << i << " [pos=\"" << ((graph.node(i)[0] - min_x) * scale) << "," << ((graph.node(i)[1] - min_y) * scale) << "!\"];" << std::endl;
+    }
+    out << "  " << std::endl;
+    for (std::size_t i = 0; i < graph.size(); i++)
+    {
+        for (auto j : graph.neighbor(i))
+        {
+            if (i < j)
+            {
+                out << "  " << i << " -- " << j << ";" << std::endl;
+            }
+        }
+    }
+    out << "}" << std::endl;
+}
