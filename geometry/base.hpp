@@ -269,11 +269,13 @@ template <typename T, std::size_t Dimension>
 struct Line
 {
 public:
+    using PointType = Point<T, Dimension>;
+
     Line() noexcept
     {
     }
 
-    Line(const Point<T, Dimension>& from, const Point<T, Dimension>& to) noexcept
+    Line(const PointType& from, const PointType& to) noexcept
     {
         for (std::size_t i = 1; i < Dimension; i += 2)
         {
@@ -287,7 +289,7 @@ public:
         offset = -dot(coef, from);
     }
 
-    Point<T, Dimension> coef;
+    PointType coef;
     T offset;
 };
 
@@ -301,27 +303,21 @@ std::ostream& operator<<(std::ostream& out, const Line<T, Dimension>& line)
 using Line3D = Line<double, 3>;
 using Line2D = Line<double, 2>;
 
-Point2D Intersect(const Line2D& l1, const Line2D& l2) noexcept
-{
-    const double denom = l1.coef[0] * l2.coef[1] - l1.coef[1] * l2.coef[0];
-    assert(denom != 0.0);
-
-    const double num0 = -l1.offset * l2.coef[1] + l1.coef[1] * l2.offset;
-    const double num1 = l1.offset * l2.coef[0] - l1.coef[0] * l2.offset;
-    return Point2D({ num0 / denom, num1 / denom });
-}
+Point2D Intersect(const Line2D& l1, const Line2D& l2) noexcept;
 
 template <class T, std::size_t Dimension>
 class Circle
 {
 public:
-    Circle(const Point<T, Dimension>& center, const T radius)
+    using PointType = Point<T, Dimension>;
+
+    Circle(const PointType& center, const T radius) noexcept
         : center_(center)
         , radius_(radius)
     {
     }
 
-    const Point<T, Dimension>& Center() const noexcept
+    const PointType& Center() const noexcept
     {
         return center_;
     }
@@ -331,25 +327,38 @@ public:
         return radius_;
     }
 
+    bool Contain(const PointType& p) const noexcept
+    {
+        return (center_ - p).Norm2() < radius_ * radius_;
+    }
+
 private:
-    Point<T, Dimension> center_;
+    PointType center_;
     T radius_;
 };
+
+using Circle2D = Circle<double, 2>;
+using Circle3D = Circle<double, 3>;
 
 template <class T, std::size_t Dimension>
 class Triangle
 {
 public:
-    Triangle(const Point<T, Dimension>& p1, const Point<T, Dimension>& p2, const Point<T, Dimension>& p3) noexcept
-        : orig_(p1)
-        , dir1_(p2 - p1)
-        , dir2_(p3 - p1)
+    using PointType = Point<T, Dimension>;
+
+    Triangle(const PointType& p1, const PointType& p2, const PointType& p3) noexcept
     {
+        point_array_[0] = p1;
+        point_array_[1] = p2;
+        point_array_[2] = p3;
     }
 
-    bool Contain(const Point<T, Dimension>& p) const noexcept
+    static bool Contain(const PointType& p1, const PointType& p2, const PointType& p3, const PointType& p) noexcept
     {
-        const Point<T, Dimension> pb = p - orig_;
+        const PointType pb = p - p1;
+
+        const auto dir1_ = p2 - p1;
+        const auto dir2_ = p3 - p1;
 
         const auto a = dot(pb, dir1_);
         const auto b = dot(dir1_, dir1_);
@@ -361,11 +370,21 @@ public:
         const auto c1 = (a * e - c * d) / denom;
         const auto c2 = -(a * c - b * d) / denom;
 
-        return 0.0 <= c1 && 0.0 <= c2 && c1 + c2 <= 1.0;
+        constexpr double eps = 1e-7;
+
+        return -eps <= c1 && -eps <= c2 && c1 + c2 <= 1.0 + eps;
     }
 
-    Circle<T, Dimension> GetCircumscribedCircle() const noexcept
+    bool Contain(const PointType& p) const noexcept
     {
+        return Contain(at(0), at(1), at(2), p);
+    }
+
+    static Circle<T, Dimension> GetCircumscribedCircle(const PointType& p1, const PointType& p2, const PointType& p3) noexcept
+    {
+        const auto dir1_ = p2 - p1;
+        const auto dir2_ = p3 - p1;
+
         const auto a = dot(dir1_, dir1_);
         const auto b = dot(dir1_, dir2_);
         const auto c = dot(dir2_, dir2_);
@@ -374,16 +393,39 @@ public:
         const auto t = a * (b - c) / (2 * (b * b - a * c));
 
         const auto relo = (dir1_ * s) + (dir2_ * t);
-        const auto o = orig_ + relo;
+        const auto o = p1 + relo;
         const auto r = sqrt(dot(relo, relo));
 
         return Circle<T, Dimension>(o, r);
     }
 
+    Circle<T, Dimension> GetCircumscribedCircle() const noexcept
+    {
+        return GetCircumscribedCircle(at(0), at(1), at(2));
+    }
+
+    const PointType& operator[](const std::size_t index) const noexcept
+    {
+        return point_array_[index];
+    }
+
+    PointType& operator[](const std::size_t index) noexcept
+    {
+        return point_array_[index];
+    }
+
+    const PointType& at(const std::size_t index) const noexcept
+    {
+        return point_array_[index];
+    }
+
+    PointType& at(const std::size_t index) noexcept
+    {
+        return point_array_[index];
+    }
+
 private:
-    Point<T, Dimension> orig_;
-    Point<T, Dimension> dir1_;
-    Point<T, Dimension> dir2_;
+    std::array<PointType, 3> point_array_;
 };
 
 using Triangle3D = Triangle<double, 3>;

@@ -1,4 +1,4 @@
-#include "base.hpp"
+#include "geometry/base.hpp"
 
 #include <gtest/gtest.h>
 #include <sstream>
