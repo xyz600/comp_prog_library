@@ -15,7 +15,7 @@ std::vector<std::vector<int>> warshall_floyd(const GraphType& graph)
         distance[i][i] = 0;
         for (auto j : graph.neighbor(i))
         {
-            distance[i][j] = distance[j][i] = graph.edge(i, j);
+            distance[i][j] = graph.edge(i, j);
         }
     }
     for (std::size_t k = 0; k < n; k++)
