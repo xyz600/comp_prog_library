@@ -353,7 +353,7 @@ public:
         point_array_[2] = p3;
     }
 
-    static bool Contain(const PointType& p1, const PointType& p2, const PointType& p3, const PointType& p) noexcept
+    static bool Contain(const PointType& p1, const PointType& p2, const PointType& p3, const PointType& p, const double eps) noexcept
     {
         const PointType pb = p - p1;
 
@@ -370,14 +370,12 @@ public:
         const auto c1 = (a * e - c * d) / denom;
         const auto c2 = -(a * c - b * d) / denom;
 
-        constexpr double eps = 1e-7;
-
         return -eps <= c1 && -eps <= c2 && c1 + c2 <= 1.0 + eps;
     }
 
-    bool Contain(const PointType& p) const noexcept
+    bool Contain(const PointType& p, const double eps) const noexcept
     {
-        return Contain(at(0), at(1), at(2), p);
+        return Contain(at(0), at(1), at(2), p, eps);
     }
 
     static Circle<T, Dimension> GetCircumscribedCircle(const PointType& p1, const PointType& p2, const PointType& p3) noexcept

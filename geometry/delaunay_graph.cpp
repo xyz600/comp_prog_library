@@ -5,6 +5,7 @@
 #include <fstream>
 #include <limits>
 #include <map>
+#include <random>
 #include <set>
 #include <stack>
 #include <tuple>
@@ -26,9 +27,9 @@ public:
         return array_[index];
     }
 
-    bool Contain(const Point2D& point, const std::vector<Point2D>& position_list) const noexcept
+    bool Contain(const Point2D& point, const std::vector<Point2D>& position_list, const double eps) const noexcept
     {
-        return Triangle2D::Contain(position_list[array_[0]], position_list[array_[1]], position_list[array_[2]], point);
+        return Triangle2D::Contain(position_list[array_[0]], position_list[array_[1]], position_list[array_[2]], point, eps);
     }
 
     Circle2D GetCircumscribedCircle(const std::vector<Point2D>& position_list) const noexcept
@@ -86,18 +87,31 @@ public:
     std::size_t GetContainedTriangle(const Point2D& p)
     {
         std::size_t index = 0;
+        constexpr double init_eps = 1e-7;
+        double eps = init_eps;
+
         while (!is_leaf(index))
         {
+            bool success = false;
             const int prev_index = index;
             for (auto next_index : history_.neighbor(index))
             {
-                if (history_.node(next_index).Contain(p, position_list_))
+                if (history_.node(next_index).Contain(p, position_list_, eps))
                 {
                     index = next_index;
+                    success = true;
                     break;
                 }
             }
             assert(prev_index != index);
+            if (!success)
+            {
+                eps *= 2;
+            }
+            else
+            {
+                eps = init_eps;
+            }
         }
         return index;
     }
@@ -186,7 +200,7 @@ bool CheckInternal(const Point2D& p1, const Point2D& p2, const Point2D& p3, cons
 
 SparseGraph<int, int> GetDelaunayGraph(const std::vector<Point2D>& position_list)
 {
-    constexpr double eps = 1e-3;
+    constexpr double eps = 1e-6;
 
     const Point2D Mins = ReduceMin(position_list);
     const Point2D Maxs = ReduceMax(position_list);
