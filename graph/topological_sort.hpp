@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "base.hpp"
+// verified @ https://nikkei2019-qual.contest.atcoder.jp/tasks/nikkei2019_qual_d
 template <typename GraphType>
 std::vector<std::size_t> topological_order(const GraphType& graph)
 {
