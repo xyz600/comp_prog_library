@@ -5,47 +5,44 @@
 #include <vector>
 
 #include "base.hpp"
-
 template <typename GraphType>
 std::vector<std::size_t> topological_order(const GraphType& graph)
 {
-    std::vector<bool> decided(graph.size(), false);
     std::vector<std::size_t> order;
+    stack<int> st;
 
-    for (int ns = 0; ns < graph.size(); ns++)
+    vector<int> hs(graph.size());
+
+    for (int v = 0; v < graph.size(); v++)
     {
-        if (!decided[ns])
+        for (int nv : graph.neighbor(v))
         {
-            // (node, neihgbor index)
-            stack<std::pair<int, int>> s;
-            s.emplace(ns, 0);
+            hs[nv]++;
+        }
+    }
+    for (int i = 0; i < graph.size(); i++)
+    {
+        if (hs[i] == 0)
+        {
+            st.push(i);
+        }
+    }
 
-            while (!s.empty())
+    vector<int> finished(graph.size(), false);
+
+    while (!st.empty())
+    {
+        const int v = st.top();
+        st.pop();
+        order.push_back(v);
+        finished[v] = true;
+
+        for (int nv : graph.neighbor(v))
+        {
+            hs[nv]--;
+            if (hs[nv] == 0 && !finished[nv])
             {
-                int n, i;
-                tie(n, i) = s.top();
-                s.pop();
-
-                if (!decided[n])
-                {
-                    // 帰りがけのタイミング
-                    if (i == graph.neighbor(n).size())
-                    {
-                        decided[n] = true;
-                        order.push_back(n);
-                    }
-                    else
-                    {
-                        s.emplace(n, i + 1);
-                        for (auto next : graph.neighbor(n))
-                        {
-                            if (!decided[next])
-                            {
-                                s.emplace(next, 0);
-                            }
-                        }
-                    }
-                }
+                st.push(nv);
             }
         }
     }
