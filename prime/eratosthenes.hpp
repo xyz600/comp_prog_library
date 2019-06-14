@@ -6,21 +6,27 @@
 template <typename T>
 std::vector<T> eratosthenes(const T upperbound)
 {
-    vector<bool> is_prime(T + 1, true);
-    vector<T> result;
+    vector<bool> is_prime(upperbound + 1, true);
 
-    const T iter_upperbound = std::sqrt(upperbound);
     for (T val = 2; val * val <= upperbound; val++)
     {
         if (is_prime[val])
         {
-            result.push_back(val);
-            for (T nonprime = val * val; nonprime <= T; nonprime += val)
+            for (T nonprime = val * val; nonprime <= upperbound; nonprime += val)
             {
                 is_prime[nonprime] = false;
             }
         }
     }
+    vector<T> result;
+    for (T val = 2; val <= upperbound; val++)
+    {
+        if (is_prime[val])
+        {
+            result.push_back(val);
+        }
+    }
+
     return result;
 }
 
