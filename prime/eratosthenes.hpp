@@ -35,7 +35,7 @@ std::vector<T> divisor_list(const T N)
 {
     std::vector<T> result;
 
-    for (T val = 2; val * val <= N; val++)
+    for (T val = 1; val * val <= N; val++)
     {
         if (N % val == 0)
         {
