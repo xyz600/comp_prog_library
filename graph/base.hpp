@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <map>
+#include <queue>
 #include <unordered_set>
 #include <vector>
 
@@ -60,7 +61,26 @@ public:
         return nodes_.at(index);
     }
 
+    NodeType& node(const std::size_t index) noexcept
+    {
+        return nodes_.at(index);
+    }
+
     const EdgeType& edge(const std::size_t from, const std::size_t to) const noexcept
+    {
+        if (undirected_)
+        {
+            auto key = std::make_pair(std::min(from, to), std::max(from, to));
+            return edges_.at(key);
+        }
+        else
+        {
+            auto key = std::make_pair(from, to);
+            return edges_.at(key);
+        }
+    }
+
+    EdgeType& edge(const std::size_t from, const std::size_t to) noexcept
     {
         if (undirected_)
         {
@@ -83,6 +103,36 @@ public:
     std::size_t size() const noexcept
     {
         return neighbor_list_.size();
+    }
+
+    SparseGraph<N, E> decide_root(const int node_index) const noexcept
+    {
+        SparseGraph<N, E> graph(false);
+        for (int i = 0; i < n; i++)
+        {
+            graph.push_node(node(i));
+        }
+
+        std::queue<int> que;
+        que.push(node_index);
+        vector<bool> visited(size(), false);
+        visited[node_index] = false;
+
+        while (!que.empty())
+        {
+            const int node = que.front();
+            que.pop();
+            for (auto next : neighbor(node))
+            {
+                if (!visited[next])
+                {
+                    graph.connect(node, next, edge(node, next));
+                    visited[next] = true;
+                    que.push(next);
+                }
+            }
+        }
+        return graph;
     }
 
 private:
