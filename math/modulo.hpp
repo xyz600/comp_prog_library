@@ -91,7 +91,7 @@ ModuloInteger<MOD> ModuloInteger<MOD>::operator-(const ModuloInteger value) cons
 template <std::size_t MOD>
 void ModuloInteger<MOD>::operator-=(const ModuloInteger value) noexcept
 {
-    this->value = (this->value - value.value) % MOD;
+    this->value = (this->value + MOD - value.value) % MOD;
 }
 
 template <std::size_t MOD>
@@ -139,7 +139,7 @@ ModuloInteger<MOD> ModuloInteger<MOD>::operator-(const std::size_t value) const 
 template <std::size_t MOD>
 void ModuloInteger<MOD>::operator-=(const std::size_t value) noexcept
 {
-    this->value = (this->value - value) % MOD;
+    this->value = (this->value + MOD - value) % MOD;
 }
 
 template <std::size_t MOD>
