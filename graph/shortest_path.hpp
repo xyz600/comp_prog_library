@@ -1,6 +1,12 @@
 #pragma once
 
+#include <cstdint>
+#include <limits>
+#include <queue>
+#include <tuple>
 #include <vector>
+
+#include "base.hpp"
 
 // verified: https://atcoder.jp/contests/abc051/tasks/abc051_d
 template <typename GraphType>
@@ -29,4 +35,30 @@ std::vector<std::vector<int>> warshall_floyd(const GraphType& graph)
         }
     }
     return distance;
+}
+
+template <typename NodeType, typename EdgeType, typename CostType>
+CostType dijkstra(const SparseGraph<NodeType, EdgeType>& graph, std::size_t start, std::size_t goal)
+{
+    using elem_type = std::pair<std::int64_t, std::int64_t>;
+    std::priority_queue<elem_type, std::vector<elem_type>, less<elem_type>> que;
+
+    std::vector<CostType> cost(graph.size(), std::numeric_limits<CostType>::max());
+
+    while (!que.size())
+    {
+        std::int64_t node;
+        CostType c;
+        std::tie(node, c) = que.top();
+        que.pop();
+
+        if (cost[node] > c)
+        {
+            cost[node] = c;
+            for (auto next : graph.neighbor(node))
+            {
+                if ()
+            }
+        }
+    }
 }
