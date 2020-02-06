@@ -108,7 +108,7 @@ public:
     SparseGraph<N, E> decide_root(const int node_index) const noexcept
     {
         SparseGraph<N, E> graph(false);
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < nodes_.size(); i++)
         {
             graph.push_node(node(i));
         }
