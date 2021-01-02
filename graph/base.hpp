@@ -115,7 +115,7 @@ public:
 
         std::queue<int> que;
         que.push(node_index);
-        vector<bool> visited(size(), false);
+        std::vector<bool> visited(size(), false);
         visited[node_index] = false;
 
         while (!que.empty())
