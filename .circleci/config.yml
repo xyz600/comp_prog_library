@@ -1,0 +1,13 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/python:stretch
+    steps:
+      - checkout
+      - run:
+          command: |
+            pip3 install --user online-judge-tools online-judge-verify-helper
+            cd test_oj
+            oj-verify
