@@ -10,4 +10,4 @@ jobs:
           command: |
             pip3 install --user online-judge-tools online-judge-verify-helper
             cd test_oj
-            oj-verify
+            oj-verify run
